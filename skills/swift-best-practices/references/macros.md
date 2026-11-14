@@ -29,7 +29,7 @@ MyMacros/
 │   ├── MyMacros/             # the declarations callers import
 │   │   └── Stringify.swift   # @freestanding(expression) public macro stringify...
 │   └── MyMacrosPlugin/       # a .macro target that depends on swift-syntax
-│       └── StringifyMacro.swift
+│       └── StringifyMacro.swift   # the @main CompilerPlugin and the macro type
 └── Tests/
     └── MyMacrosTests/        # tests the expansion as text
 ```
@@ -41,16 +41,23 @@ so a wrong argument type is reported at the call site.
 
 ```swift package
 // Sources/MyMacros/Stringify.swift
+/// Returns the value together with the source text that produced it.
 @freestanding(expression)
 public macro stringify<T>(_ value: T) -> (T, String) =
   #externalMacro(module: "MyMacrosPlugin", type: "StringifyMacro")
 
 // Sources/MyMacrosPlugin/StringifyMacro.swift
+import SwiftCompilerPlugin
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-public struct StringifyMacro: ExpressionMacro {
-  public static func expansion(
+@main
+struct MyMacrosPlugin: CompilerPlugin {
+  let providingMacros: [any Macro.Type] = [StringifyMacro.self]
+}
+
+struct StringifyMacro: ExpressionMacro {
+  static func expansion(
     of node: some FreestandingMacroExpansionSyntax,
     in context: some MacroExpansionContext
   ) throws -> ExprSyntax {
