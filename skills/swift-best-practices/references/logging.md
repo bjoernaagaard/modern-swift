@@ -5,6 +5,7 @@ A command line tool still writes its own output with `print`. A package that als
 on Linux uses the `swift-log` package, which has the same levels.
 
 Create one `Logger` per subsystem and category, and keep the log calls in shipping code.
+Log events and failures, not the entry and exit of each function.
 The system stores a message in a compact form and builds the text only when someone
 reads the log, so a call costs little.
 

@@ -46,8 +46,7 @@ swift format lint --strict --recursive Sources Tests
 ```
 
 Fix a warning. Don't silence it with `@unchecked Sendable`, `nonisolated(unsafe)`,
-`try!`, or `@preconcurrency`. Use `xcodebuild` with the project's scheme when the project
-has no `Package.swift`.
+`try!`, or `@preconcurrency`.
 
 A target needs the settings below before the concurrency rules in section 5 are true.
 Xcode calls the two upcoming features "Approachable Concurrency". With Swift 6.4 tools,
@@ -149,8 +148,12 @@ that forwards an error. Write plain `throws` on a library's public API, so the l
 can add an error type later without breaking callers.
 
 Don't write `!`, `try!`, or an implicitly unwrapped `T!` on a path that outside input
-can reach. Don't write `try?` when the caller needs the reason, because `try?` discards
-the error. When an invariant makes `nil` impossible, state the invariant in the message.
+can reach. Don't write `try?`, or a `catch` that only logs, when the caller needs the
+reason, because both discard the error. When an invariant makes `nil` impossible, state
+the invariant in the message.
+
+Trust the types. Make a property optional only when it can be `nil`, and don't check or
+catch what the compiler already rules out. Validate outside input once, where it enters.
 
 ```diff
 -let url = URL(string: "https://example.com/api")!
@@ -189,9 +192,9 @@ struct Photo: Sendable {
   var colors: [UInt8]
 }
 
-nonisolated struct PhotoProcessor {
+nonisolated struct PhotoDecoder {
   @concurrent
-  func process(_ data: [UInt8]) async -> Photo {
+  func photo(from data: [UInt8]) async -> Photo {
     async let thumbnail = shrink(data)
     async let colors = dominantColors(data)
     return await Photo(thumbnail: thumbnail, colors: colors)
@@ -286,6 +289,7 @@ Write concrete types first. Add a protocol when two types repeat the same code a
 type needs its own implementation of some operation. If every conforming type would use
 the same implementation, write an extension on an existing protocol and add no new
 protocol. Prefer a struct that stores another value over a class that inherits from one.
+Add no wrapper type or function that only forwards calls.
 
 | Write | Meaning | Use when |
 |---|---|---|
@@ -339,10 +343,12 @@ API Design Guidelines, and `references/api-design-guidelines.md` has the full li
 | Label an argument so the call reads as a phrase | `move(to: point)` | `move(point)` |
 | Add no type prefix | `Parser` | `XYZParser` |
 | Add no `get` prefix | `posts()` | `getPosts()` |
+| Use the domain word, not a vague one | `photo(from:)`, `ThumbnailCache` | `process(_:)`, `handleData()`, `ImageManager` |
 
 Write the narrowest access level that works. Use `private`, then `internal`, then
 `package`, then `public`. Every `public` declaration is a promise to callers, so give it
-a `///` comment whose first line is a one sentence summary, and say what it throws.
+a `///` comment whose first line is a one sentence summary, and say what it throws. A
+comment says why, not what. A trivial member needs only the summary line.
 
 Replace a `Bool` parameter in a public function with a two case `enum` when the call
 site does not explain it, e.g., `render(.draft)` and not `render(true)`. Use a dedicated
@@ -382,6 +388,10 @@ what the code does now, including the order of results and what happens on empty
 Second, make the change the user asked for and fix each problem they named. Third, show
 the before and after of every signature that changed, and give the reason.
 
+Keep one form across a group of related types, e.g., every view model is either
+`ObservableObject` or `@Observable`. Move the whole group to the new form from section 9,
+or leave the group alone and tell the user.
+
 Keep odd behavior you don't understand, and tell the user about it. Don't turn on Swift
 6 checking and refactor in the same change, and read `references/concurrency.md` first
 when the task is a migration.
@@ -402,11 +412,12 @@ Before you return Swift code, confirm each line.
   different types are stored together.
 - Every `public` declaration has a doc comment, and a public value type that is safe to
   share is marked `Sendable`.
-- No form from the left column of section 9 remains.
+- No form from the left column of section 9 remains, and no group of related types mixes
+  an old form with its new form.
 
 ## 12. References
 
-Read a reference when its case comes up. Each file is a short digest with examples.
+Read a reference when its case comes up.
 
 - `references/api-design-guidelines.md`: you are naming or documenting a public API.
 - `references/concurrency.md`: a data race or isolation error does not yield to section

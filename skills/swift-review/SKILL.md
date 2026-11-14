@@ -78,7 +78,8 @@ Work through the groups in order. Most bugs are in the first two groups.
 
 ### Error handling
 
-- `try?` or an empty `catch` discards an error the caller or the user needs.
+- `try?`, an empty `catch`, or a `catch` that only logs discards an error the caller or
+  the user needs.
 - An error type is a `String`, an `NSError` built by hand, or an enum case with no
   associated value, so the message cannot say which file, key, or value failed.
 - `fatalError` or `precondition` reports a failure that outside input can cause, e.g., a
@@ -92,9 +93,11 @@ Work through the groups in order. Most bugs are in the first two groups.
 
 - Types: a `class` that has no identity, sharing, or inheritance, or a set of optional
   properties and Boolean flags that should be one `enum`.
-- Abstraction: a protocol with one conforming type, a class hierarchy where composition
-  works, or `any P` where `some P` or a generic keeps the type.
-- Naming: a `get` prefix, a type prefix, a name that repeats the type, a mutating and
+- Abstraction: a protocol with one conforming type, a wrapper that only forwards calls, a
+  class hierarchy where composition works, or `any P` where `some P` or a generic keeps
+  the type.
+- Naming: a `get` prefix, a type prefix, a name that repeats the type, a vague name such
+  as `process`, `handle`, or `Manager` where a domain word exists, a mutating and
   nonmutating pair that does not follow the `sort` and `sorted` pattern, or a `Bool`
   parameter that the call site does not explain.
 - Visibility: `public` on a declaration no other module uses, a public stored property
@@ -108,6 +111,12 @@ Work through the groups in order. Most bugs are in the first two groups.
 - A form from the left column of the "Old form and new form" table in
   `swift-best-practices`, e.g., `ObservableObject`, `DispatchQueue.global().async`, a
   completion handler next to available async APIs, or `XCTAssertEqual` in a new test.
+  Report one finding when a group of related types mixes an old form with its new form.
+- Defensive code the types already rule out, e.g., an optional property that is never
+  `nil`, a `guard` on a value that cannot fail, or a `do` and `catch` around code that
+  cannot throw.
+- An `async` function with no `await`. Skip a `@concurrent` function, which must be
+  `async` to leave the caller's actor.
 - `Task.detached`, or `Task { }` where `async let` or a task group fits the scope.
 - A task group that starts one child for each element of a list with no limit.
 - `remove(at:)` or `contains` in a loop over the same array, or a chain of `map` and
@@ -118,7 +127,7 @@ Work through the groups in order. Most bugs are in the first two groups.
 
 ### Documentation and tests
 
-- A public declaration has no `///` comment, or the comment repeats the name.
+- A public declaration has no `///` comment, or a comment repeats the name or the code.
 - A function that throws does not say what it throws, or a function with a
   `precondition` does not state the precondition.
 - Logic has no tests, a test asserts a constant against itself, or a test is commented
