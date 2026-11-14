@@ -139,7 +139,7 @@ needs a rule you are unsure of.
 
 ## 4. Write the report
 
-Copy the structure of `assets/review-template.md`, and sort the findings into its three
+Copy the structure of [`assets/review-template.md`](assets/review-template.md), and sort the findings into its three
 groups.
 
 | Group | A finding belongs here when |
@@ -171,7 +171,7 @@ Each finding follows the rules below.
 ## 5. Offer the lint settings
 
 If the project has no `.swift-format` file, or its targets lack the settings from
-section 2 of `swift-best-practices`, end the report by suggesting `assets/swift-format.json`
+section 2 of `swift-best-practices`, end the report by suggesting [`assets/swift-format.json`](assets/swift-format.json)
 from this skill, saved as `.swift-format`, and `lints/Package.swift` from
 https://github.com/bjoernaagaard/modern-swift. Name two or three findings from the review that
 the settings would have reported.

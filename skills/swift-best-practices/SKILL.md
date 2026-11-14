@@ -97,7 +97,7 @@ another.
 
 A struct that stores a mutable class instance does not have value semantics, because two
 copies of the struct share one object. Keep the stored class instance private and never
-mutate it, or copy it before each write. `references/performance-and-arc.md` shows the
+mutate it, or copy it before each write. [`references/performance-and-arc.md`](references/performance-and-arc.md) shows the
 copy before a write.
 
 Use a noncopyable type, written `~Copyable`, for a resource that must have one owner.
@@ -273,14 +273,14 @@ cancellation, priority, and task local values from its parent.
 | A task that inherits nothing | `Task.detached`, which you should almost never need |
 
 Don't start one child per element of a long list. Start a fixed number of children, and
-add one each time a child finishes. `references/concurrency.md` has the full pattern.
+add one each time a child finishes. [`references/concurrency.md`](references/concurrency.md) has the full pattern.
 
 Cancellation only sets a flag. Call `try Task.checkCancellation()` before each expensive
 step, and use `withTaskCancellationHandler` for work that is suspended inside a callback
 API. Wrap a write that must finish in `withTaskCancellationShield` (Swift 6.4).
 
 A continuation must resume exactly once on every path. If it never resumes, the caller
-waits forever, and a second resume traps. `references/concurrency.md` shows how to wrap
+waits forever, and a second resume traps. [`references/concurrency.md`](references/concurrency.md) shows how to wrap
 a callback API.
 
 ## 7. Protocols and generics
@@ -332,7 +332,7 @@ a generic parameter would have kept.
 ## 8. API design
 
 A call should read clearly at the place where it is used. The rules come from the Swift
-API Design Guidelines, and `references/api-design-guidelines.md` has the full list.
+API Design Guidelines, and [`references/api-design-guidelines.md`](references/api-design-guidelines.md) has the full list.
 
 | Rule | Write | Not |
 |---|---|---|
@@ -393,7 +393,7 @@ Keep one form across a group of related types, e.g., every view model is either
 or leave the group alone and tell the user.
 
 Keep odd behavior you don't understand, and tell the user about it. Don't turn on Swift
-6 checking and refactor in the same change, and read `references/concurrency.md` first
+6 checking and refactor in the same change, and read [`references/concurrency.md`](references/concurrency.md) first
 when the task is a migration.
 
 ## 11. Final checklist
@@ -419,17 +419,17 @@ Before you return Swift code, confirm each line.
 
 Read a reference when its case comes up.
 
-- `references/api-design-guidelines.md`: you are naming or documenting a public API.
-- `references/concurrency.md`: a data race or isolation error does not yield to section
+- [`references/api-design-guidelines.md`](references/api-design-guidelines.md): you are naming or documenting a public API.
+- [`references/concurrency.md`](references/concurrency.md): a data race or isolation error does not yield to section
   5, you are wrapping a callback or delegate API, you need a task group with a limit, or
   you are moving a target to Swift 6.
-- `references/swift-testing.md`: the user asked for tests.
-- `references/swiftui.md`: the target imports SwiftUI.
-- `references/performance-and-arc.md`: a profile shows a cost, a struct needs to copy
+- [`references/swift-testing.md`](references/swift-testing.md): the user asked for tests.
+- [`references/swiftui.md`](references/swiftui.md): the target imports SwiftUI.
+- [`references/performance-and-arc.md`](references/performance-and-arc.md): a profile shows a cost, a struct needs to copy
   its storage before a write, or a retain cycle needs fixing.
-- `references/unsafe-and-interop.md`: the code calls C, C++, or Objective-C, or uses a
+- [`references/unsafe-and-interop.md`](references/unsafe-and-interop.md): the code calls C, C++, or Objective-C, or uses a
   pointer.
-- `references/macros.md`: you are writing or testing a macro.
-- `references/logging.md`: you are adding logs or diagnostics.
-- `references/google-swift-style.md`: a formatting or file layout question that
+- [`references/macros.md`](references/macros.md): you are writing or testing a macro.
+- [`references/logging.md`](references/logging.md): you are adding logs or diagnostics.
+- [`references/google-swift-style.md`](references/google-swift-style.md): a formatting or file layout question that
   `swift format` does not settle.

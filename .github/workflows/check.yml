@@ -1,0 +1,53 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --include-fragments --no-progress README.md 'skills/**/*.md'
+
+  swift:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - run: swift --version
+      - name: Build the lint rules package
+        run: swift build --package-path lints
+      - name: Type check every Swift block in the skills
+        run: |
+          dev=$(xcode-select -p)
+          toolchain=$(dirname "$(dirname "$(xcrun -f swiftc)")")
+          blocks=$(mktemp -d)
+          for doc in $(git ls-files 'skills/*.md' ':!:skills/*/evals/*'); do
+            awk -v prefix="$blocks/$(echo "$doc" | tr / _)" \
+              '/^```swift/ { n++; on = 1; next } /^```/ { on = 0 } on { print > (prefix "-" n ".swift") }' "$doc"
+          done
+          failed=0
+          for block in "$blocks"/*.swift; do
+            mode=-parse-as-library
+            grep -q '^let package' "$block" && mode=
+            if ! xcrun swiftc -typecheck -swift-version 6 $mode \
+              -enable-upcoming-feature NonisolatedNonsendingByDefault \
+              -enable-upcoming-feature InferIsolatedConformances \
+              -I "$toolchain/lib/swift/pm/ManifestAPI" -package-description-version 6.2 \
+              -I "$toolchain/lib/swift/host" \
+              -plugin-path "$toolchain/lib/swift/host/plugins/testing" \
+              -F "$dev/Platforms/MacOSX.platform/Developer/Library/Frameworks" \
+              -I "$dev/Platforms/MacOSX.platform/Developer/usr/lib" \
+              "$block"; then
+              echo "::error::$(basename "$block") does not type check"
+              failed=1
+            fi
+          done
+          exit $failed
