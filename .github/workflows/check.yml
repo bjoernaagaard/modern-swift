@@ -18,7 +18,7 @@ jobs:
     # The newest stable Xcode, which the skills are written against.
     runs-on: xcode-27
     env:
-      BLOCKS: ${{ runner.temp }}/blocks
+      BLOCKS: .build/blocks
     steps:
       - uses: actions/checkout@v5
       - uses: maxim-lobanov/setup-xcode@v1
