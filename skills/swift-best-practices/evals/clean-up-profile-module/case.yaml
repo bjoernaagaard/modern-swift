@@ -1,0 +1,11 @@
+schema_version: "1.1"
+name: clean-up-profile-module
+context:
+  scaffold_script: place-files.sh
+expected_outcome: |
+  Profiles.swift is cleaned up into Swift that compiles in the Swift 6 language mode. The
+  vague names get domain names, failures reach the caller or the UI in place of a log
+  line, the forwarding ProfileService is gone, the never-nil optional and the
+  always-true check are gone, both models use @Observable, formattedName is no longer
+  async, resizeAvatar stays @concurrent, and the restating comments and entry and exit
+  logs are gone.

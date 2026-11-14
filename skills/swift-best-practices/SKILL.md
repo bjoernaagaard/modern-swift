@@ -65,7 +65,7 @@ let settings: [SwiftSetting] = [
 // Pass `swiftSettings: settings` to each target, and set `swiftLanguageModes: [.v6]`.
 ```
 
-If a project has no `.swift-format` file, suggest `assets/swift-format.json` from the
+If a project has no `.swift-format` file, suggest [`assets/swift-format.json`](../swift-review/assets/swift-format.json) from the
 `swift-review` skill, saved as `.swift-format`, and the settings in `lints/Package.swift`
 from https://github.com/bjoernaagaard/modern-swift.
 

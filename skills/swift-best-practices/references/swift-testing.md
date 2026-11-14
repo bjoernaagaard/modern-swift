@@ -120,12 +120,14 @@ test as skipped.
 ## Exit tests
 
 An exit test runs its body in a child process, so you can test a `precondition` or a
-`fatalError` path. Exit tests work on macOS, Linux, FreeBSD, and Windows.
+`fatalError` path. Exit tests work on macOS, Linux, FreeBSD, and Windows. The body is not
+on the main actor, so a function it calls from an app target with main actor default
+isolation must be `nonisolated`.
 
 ```swift
 import Testing
 
-func ratio(_ a: Int, _ b: Int) -> Int {
+nonisolated func ratio(_ a: Int, _ b: Int) -> Int {
   precondition(b != 0, "divisor must not be zero")
   return a / b
 }

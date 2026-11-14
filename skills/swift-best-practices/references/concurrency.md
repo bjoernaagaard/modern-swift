@@ -32,18 +32,12 @@ final class Scaler {
 }
 
 func thumbnails(_ first: [UInt8], _ second: [UInt8]) async -> ([UInt8], [UInt8]) {
+  // Outside the main actor, one shared `let scaler = Scaler()` used by both lines
+  // fails with "sending 'scaler' risks causing data races".
   async let a = Scaler().shrink(first)
   async let b = Scaler().shrink(second)
   return await (a, b)
 }
-```
-
-```diff
--  let scaler = Scaler()
--  async let a = scaler.shrink(first)   // error: sending 'scaler' risks causing data races
--  async let b = scaler.shrink(second)
-+  async let a = Scaler().shrink(first)
-+  async let b = Scaler().shrink(second)
 ```
 
 ## Sending a value that is not Sendable
@@ -53,7 +47,7 @@ checks that the caller does not use the value again. Use `sending` when a functi
 a new class instance to its caller.
 
 ```swift
-final class Report {
+nonisolated final class Report {
   var lines: [String] = []
 }
 
@@ -140,7 +134,7 @@ source in `onTermination`. The loop that reads the stream ends when the task is
 cancelled.
 
 ```swift
-final class Ticker: Sendable {
+nonisolated final class Ticker: Sendable {
   func start(_ onTick: @escaping @Sendable (Int) -> Void) { onTick(1) }
   func stop() {}
 }
@@ -163,7 +157,7 @@ the handler runs at the same time as the body. State that both sides touch needs
 ```swift
 import Synchronization
 
-final class Download: Sendable {
+nonisolated final class Download: Sendable {
   private let cancelled = Atomic(false)
   func cancel() { cancelled.store(true, ordering: .relaxed) }
   func run() async -> Int { cancelled.load(ordering: .relaxed) ? 0 : 1 }

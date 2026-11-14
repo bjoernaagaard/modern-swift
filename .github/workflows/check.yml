@@ -24,7 +24,17 @@ jobs:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
-      - run: swift --version
+      - name: The Swift version matches the one the skills and README describe
+        run: |
+          actual=$(swift --version 2>&1 | sed -n 's/.*Swift version \([0-9]*\.[0-9]*\).*/\1/p' | head -1)
+          echo "Swift $actual"
+          for doc in README.md skills/swift-best-practices/SKILL.md; do
+            stated=$(sed -n 's/^The rules\( below\)\{0,1\} describe Swift \([0-9.]*\) .*/\2/p' "$doc")
+            if [ "$stated" != "$actual" ]; then
+              echo "::error file=$doc::describes Swift $stated, but CI runs Swift $actual"
+              exit 1
+            fi
+          done
 
       - name: Each file in lints/check triggers the warning it expects
         run: |
@@ -43,6 +53,8 @@ jobs:
 
       # A block with `// Sources/<target>/<file>.swift` lines is a package example. Its
       # files go into .github/examples/<doc name>/, which holds the package manifest.
+      # The new side of a ```diff block in a skill or reference becomes a script that
+      # imports Foundation. Diffs in assets/ are templates, not Swift.
       - name: Extract every Swift block in the skills
         run: |
           mkdir -p "$BLOCKS"
@@ -70,6 +82,14 @@ jobs:
               }
               on { block = block $0 "\n" }' "$doc"
           done
+          mkdir -p "$BLOCKS/diffs"
+          for doc in $(git ls-files 'skills/*.md' ':!:skills/*/evals/*' ':!:skills/*/assets/*'); do
+            awk -v prefix="$BLOCKS/diffs/$(echo "$doc" | tr / _)" '
+              /^```diff/ { n++; on = 1; file = prefix "-" n ".swift"; print "import Foundation" > file; next }
+              /^```/ { on = 0 }
+              on && /^[ +]/ { print substr($0, 2) > file }
+              on && /^$/ { print "" > file }' "$doc"
+          done
 
       - name: Build the package examples
         run: |
@@ -77,33 +97,40 @@ jobs:
             swift build --package-path "$package"
           done
 
-      - name: Type check the blocks with the settings from lints/Package.swift
+      # -emit-sil runs the data race checks that -typecheck skips. Each block compiles
+      # twice, once as library code and once as an app target that is on the main actor
+      # by default.
+      - name: Compile the blocks with the settings from lints/Package.swift
         run: |
           dev=$(xcode-select -p)
           toolchain=$(dirname "$(dirname "$(xcrun -f swiftc)")")
           failed=0
-          for block in "$BLOCKS"/*.swift; do
+          for block in "$BLOCKS"/*.swift "$BLOCKS"/diffs/*.swift; do
             mode=-parse-as-library
             grep -q '^let package' "$block" && mode=
-            if ! xcrun swiftc -typecheck -swift-version 6 $mode \
-              -enable-upcoming-feature NonisolatedNonsendingByDefault \
-              -enable-upcoming-feature InferIsolatedConformances \
-              -enable-upcoming-feature ExistentialAny \
-              -enable-upcoming-feature InternalImportsByDefault \
-              -strict-memory-safety \
-              -Werror ExistentialAny -Werror StrictMemorySafety -Werror DeprecatedDeclaration \
-              -I "$toolchain/lib/swift/pm/ManifestAPI" -package-description-version 6.2 \
-              -plugin-path "$toolchain/lib/swift/host/plugins/testing" \
-              -F "$dev/Platforms/MacOSX.platform/Developer/Library/Frameworks" \
-              -I "$dev/Platforms/MacOSX.platform/Developer/usr/lib" \
-              "$block"; then
-              echo "::error::$(basename "$block") does not type check"
-              failed=1
-            fi
+            case "$block" in "$BLOCKS"/diffs/*) mode= ;; esac
+            for isolation in nonisolated MainActor; do
+              if ! xcrun swiftc -emit-sil -o /dev/null -swift-version 6 $mode \
+                -default-isolation "$isolation" \
+                -enable-upcoming-feature NonisolatedNonsendingByDefault \
+                -enable-upcoming-feature InferIsolatedConformances \
+                -enable-upcoming-feature ExistentialAny \
+                -enable-upcoming-feature InternalImportsByDefault \
+                -strict-memory-safety \
+                -Werror ExistentialAny -Werror StrictMemorySafety -Werror DeprecatedDeclaration \
+                -I "$toolchain/lib/swift/pm/ManifestAPI" -package-description-version 6.2 \
+                -plugin-path "$toolchain/lib/swift/host/plugins/testing" \
+                -F "$dev/Platforms/MacOSX.platform/Developer/Library/Frameworks" \
+                -I "$dev/Platforms/MacOSX.platform/Developer/usr/lib" \
+                "$block"; then
+                echo "::error::$(basename "$block") does not compile with default isolation $isolation"
+                failed=1
+              fi
+            done
           done
           exit $failed
 
       - name: Format lint every block with lints/.swift-format
         run: |
           swift format lint --strict --configuration lints/.swift-format \
-            "$BLOCKS"/*.swift .github/examples/*/Sources/*/*.swift
+            "$BLOCKS"/*.swift "$BLOCKS"/diffs/*.swift .github/examples/*/Sources/*/*.swift

@@ -34,7 +34,7 @@ the first paragraph of the report.
 | What to read | the file, target, or diff the user named | for a diff, review the changed lines and the code they break, not the whole file |
 | Library or application | `public` declarations, a `.library` product in `Package.swift` | a library is held to the API rules, and an application is held to the simplicity rules |
 | Swift version and settings | `swift-tools-version`, `swiftLanguageModes`, `swiftSettings`, or the Xcode build settings | don't recommend a feature the project cannot use |
-| Frameworks | the `import` lines | for SwiftUI code, read `references/swiftui.md` in `swift-best-practices` first |
+| Frameworks | the `import` lines | for SwiftUI code, read [`references/swiftui.md`](../swift-best-practices/references/swiftui.md) in `swift-best-practices` first |
 
 The concurrency settings change what the code does. Without the upcoming feature
 `NonisolatedNonsendingByDefault`, a `nonisolated async` function runs on the global
@@ -133,7 +133,7 @@ Work through the groups in order. Most bugs are in the first two groups.
 - Logic has no tests, a test asserts a constant against itself, or a test is commented
   out when `.disabled` or `withKnownIssue` would keep it compiling.
 
-The `swift-best-practices` skill and its `references/` folder hold the full rules and
+The `swift-best-practices` skill and its [`references/`](../swift-best-practices/references/) folder hold the full rules and
 their reasons. If the skill is installed, read the relevant reference when a finding
 needs a rule you are unsure of.
 

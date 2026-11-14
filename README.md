@@ -123,7 +123,7 @@ The skill has a mapping table for each source language. Some rows are below.
 `lints/` holds the compiler settings and the `swift format` rules that report the rules
 a tool can check. Copy the `settings` array from `lints/Package.swift` into your own
 `Package.swift`, and copy `lints/.swift-format` to the root of your project. The
-`swift-review` skill ships the same file as `assets/swift-format.json`, so an installed
+`swift-review` skill ships the same file as [`assets/swift-format.json`](skills/swift-review/assets/swift-format.json), so an installed
 skill always has it.
 
 ```text
