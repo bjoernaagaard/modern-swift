@@ -8,9 +8,9 @@ most important fix.]
 
 ### 1. [Short title] (`Sources/Module/File.swift:line`)
 
-**Rule:** [rule and source]
+**Rule:** [rule and source, e.g., `NeverForceUnwrap` or "`swift-best-practices` 4. Errors and optionals"]
 **Problem:** [what is wrong and its consequence, in one or two sentences]
-**Fix:**
+**Fix:** [code for only the lines that change, never prose alone]
 
 ```diff
 -old line
@@ -21,9 +21,9 @@ most important fix.]
 
 ### 2. [Short title] (`Sources/Module/File.swift:line`)
 
-**Rule:** [rule and source]
+**Rule:** [rule and source, e.g., `NeverForceUnwrap` or "`swift-best-practices` 4. Errors and optionals"]
 **Problem:** [consequence]
-**Fix:**
+**Fix:** [code for only the lines that change, never prose alone]
 
 ```diff
 -old line
@@ -34,7 +34,7 @@ most important fix.]
 
 ### 3. [Short title] (`Sources/Module/File.swift:line`)
 
-**Rule:** [rule and source]
+**Rule:** [rule and source, e.g., `NeverForceUnwrap` or "`swift-best-practices` 4. Errors and optionals"]
 **Problem:** [why the change would help, and the tradeoff]
 **Fix:** [short change]
 

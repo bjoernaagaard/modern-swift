@@ -46,7 +46,10 @@ swift format lint --strict --recursive Sources Tests
 ```
 
 Fix a warning. Don't silence it with `@unchecked Sendable`, `nonisolated(unsafe)`,
-`try!`, or `@preconcurrency`.
+`try!`, or `@preconcurrency`. Inside a sandbox, such as an agent's, SwiftPM cannot start
+its own sandbox, so add `--disable-sandbox` to `swift build` and `swift test`. If the
+build still fails for lack of permissions, compile the sources with `swiftc` and the
+package's settings, and tell the user that `swift build` did not run.
 
 A target needs the settings below before the concurrency rules in section 5 are true.
 Xcode calls the two upcoming features "Approachable Concurrency". With Swift 6.4 tools,
@@ -363,6 +366,7 @@ Agents often write the form in the left column, so check new code against the ta
 |---|---|---|
 | A nested ternary, or a closure called at once to set a `let` | `if` and `switch` expressions | 5.9 |
 | `ObservableObject` with `@Published` | `@Observable` | 5.9 |
+| `JSONSerialization`, `[String: Any]` casts, or JSON parsed by hand | a `Decodable` struct with `JSONDecoder` | 4.0 |
 | `any Error` everywhere in internal code | `throws(MyError)` | 6.0 |
 | `XCTestCase` and `XCTAssertEqual` | `@Test` and `#expect` from Swift Testing | 6.0 |
 | A class with a lock, or a serial `DispatchQueue` | `Mutex` from `Synchronization`, or an `actor` | 6.0 |

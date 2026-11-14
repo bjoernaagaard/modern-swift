@@ -59,9 +59,13 @@ the project does not build, say so in the report and review by reading.
 
 ## 3. What to look for, in priority order
 
-Work through the groups in order. Most bugs are in the first two groups.
+Work through the groups in order. Most bugs are in the first two groups. Each group names
+the sections of `swift-best-practices` to cite when no narrower source fits.
 
 ### Correctness and data race safety
+
+Cite `swift-best-practices` 3. Data, 4. Errors and optionals, 5. Concurrency, or 6.
+Structured tasks.
 
 | Look for | Consequence |
 |---|---|
@@ -78,6 +82,8 @@ Work through the groups in order. Most bugs are in the first two groups.
 
 ### Error handling
 
+Cite `swift-best-practices` 4. Errors and optionals, or 6. Structured tasks.
+
 - `try?`, an empty `catch`, or a `catch` that only logs discards an error the caller or
   the user needs.
 - An error type is a `String`, an `NSError` built by hand, or an enum case with no
@@ -90,6 +96,9 @@ Work through the groups in order. Most bugs are in the first two groups.
   `CancellationError` as a failure and shows it to the user.
 
 ### API design, applied strictly to a library
+
+Cite the Swift API Design Guidelines, or `swift-best-practices` 3. Data, 7. Protocols and
+generics, or 8. API design.
 
 - Types: a `class` that has no identity, sharing, or inheritance, or a set of optional
   properties and Boolean flags that should be one `enum`.
@@ -107,6 +116,9 @@ Work through the groups in order. Most bugs are in the first two groups.
   should be `nonisolated` so the caller chooses where it runs.
 
 ### Idiom and clarity
+
+Cite `swift-best-practices` 9. Old form and new form, 4. Errors and optionals, or 10.
+Changing existing code.
 
 - A form from the left column of the "Old form and new form" table in
   `swift-best-practices`, e.g., `ObservableObject`, `DispatchQueue.global().async`, a
@@ -126,6 +138,8 @@ Work through the groups in order. Most bugs are in the first two groups.
 - Nested `if let` where `guard` would keep the main path unindented.
 
 ### Documentation and tests
+
+Cite `swift-best-practices` 8. API design, or `references/swift-testing.md` in it.
 
 - A public declaration has no `///` comment, or a comment repeats the name or the code.
 - A function that throws does not say what it throws, or a function with a
@@ -151,14 +165,20 @@ groups.
 Each finding follows the rules below.
 
 - Cite a location as `file:line`, or write `whole file` when there is no single line.
-  Cite the rule and its source so the reader can look it up. Sources are the Swift API
-  Design Guidelines, a Swift Evolution proposal number such as SE-0461, a compiler
-  diagnostic group such as `#RegionIsolation`, a `swift format` rule name such as
-  `NeverForceUnwrap`, or a section of `swift-best-practices`.
-- Show the fix as code, and keep it to the lines that change. A `diff` block is the
-  clearest form for a change of one to five lines.
-- Group repeats. Write one finding for "six force unwraps on parsed values" and list the
-  lines.
+  Every finding, Consider included, cites the rule and its source so the reader can look
+  it up. Sources are the Swift API Design Guidelines, a Swift Evolution proposal number
+  such as SE-0461, a compiler diagnostic group such as `#RegionIsolation`, a
+  `swift format` rule name such as `NeverForceUnwrap`, or a numbered section of
+  `swift-best-practices` with its exact heading, e.g., "`swift-best-practices` 5.
+  Concurrency". Never invent a section name, and cite nothing else, such as a book
+  chapter or a comment in the code.
+- Show the fix of every Must fix and Should fix finding as code in that finding, and keep
+  it to the lines that change. A `diff` block is the clearest form for a change of one to
+  five lines. When two findings share one fix, merge them into one finding, and never
+  write "see finding N" in place of code.
+- Group repeats. Write one finding for "six force unwraps on parsed values" and list
+  every line, even when the lines sit in different functions or another finding also
+  touches them.
 - Respect intent. When a comment explains an odd choice, put the finding under Consider
   and state the tradeoff.
 - Keep the report in proportion to the code. Five to ten findings are enough for a short
