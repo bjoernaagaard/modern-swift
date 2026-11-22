@@ -1,0 +1,4 @@
+interface:
+  display_name: "Swift Best Practices"
+  short_description: "Write clear and idiomatic Swift code"
+  default_prompt: "Use $swift-best-practices to write clear and idiomatic Swift code."

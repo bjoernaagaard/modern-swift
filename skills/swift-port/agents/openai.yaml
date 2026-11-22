@@ -1,0 +1,4 @@
+interface:
+  display_name: "Swift Port"
+  short_description: "Port existing code to idiomatic Swift"
+  default_prompt: "Use $swift-port to port existing code to idiomatic Swift."
